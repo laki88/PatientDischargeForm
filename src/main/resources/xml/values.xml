@@ -17,7 +17,7 @@
     <assistant/>
     <monocryl>deselectedCheckbox.png</monocryl>
     <interruptedNylon>deselectedCheckbox.png</interruptedNylon>
-    <stepplers>deselectedCheckbox.png</stepplers>
+    <staples>deselectedCheckbox.png</staples>
     <postOpInstructions/>
     <dateOfBirth>2017-07-05</dateOfBirth>
     <timeOfBirth>12 : 00</timeOfBirth>
@@ -30,5 +30,6 @@
     <hoSho/>
     <date>2017-07-05</date>
     <removalDate>2017-07-05</removalDate>
+    <base-path></base-path>
 
 </formData>

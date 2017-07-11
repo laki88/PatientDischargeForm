@@ -2,7 +2,6 @@ package com.sanu.hospital;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -75,7 +74,9 @@ public class Controller {
     @FXML
     private Label indicationLabel;
     @FXML
-    private TextField indication;
+    private ComboBox indication;
+    @FXML
+    private TextArea otherIndication;
     @FXML
     private Label spinalDrLabel;
     @FXML
@@ -170,7 +171,7 @@ public class Controller {
     public void handlePrinting() throws TransformerException, IOException, SAXException, ParserConfigurationException, PrintException, URISyntaxException {
         populateXMLValues();
 
-        new FOPPdfDemo().convertToPDF(patientName.getText());
+        new FOPPdfUtil().convertToPDF(patientName.getText());
 
 
 //TODO for adding printing capability
@@ -201,29 +202,35 @@ public class Controller {
 //        printJob.print(pdfDoc, new HashPrintRequestAttributeSet());
 //        fis.close();
 
-
-
-
-
-
-
-
-
         resetForm();
+    }
+
+
+    public void setTextFieldIfOtherClicked() {
+        if("Other".equals(indication.getValue())) {
+            otherIndication.setText("");
+            otherIndication.setDisable(false);
+            otherIndication.setStyle("-fx-font-weight:");
+        } else {
+            otherIndication.setText("Select other from drop down box to type other indications...");
+            otherIndication.setDisable(true);
+            otherIndication.setStyle("-fx-font-weight:bold");
+        }
     }
 
     public void populateXMLValues() throws IOException, SAXException, ParserConfigurationException, TransformerException {
         //read from XML
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+        //need to get values as getResourceAsStream because in standalone jar otherwise class loader can't find the values.xml
         Document doc = docBuilder.parse(getClass().getResourceAsStream("/xml/values.xml"));
-        //Document doc = docBuilder.parse(getClass().getResource("/xml/values.xml").toString());
 
         //modify XML
         Node patientNameNode = doc.getElementsByTagName("patientName").item(0);
         patientNameNode.setTextContent("Mrs. " + patientName.getText());
         Node ageNode = doc.getElementsByTagName("age").item(0);
-        ageNode.setTextContent(age.getText());
+        ageNode.setTextContent(age.getText() + " Years");
         Node dateOfAdmissionNode = doc.getElementsByTagName("dateOfAdmission").item(0);
         dateOfAdmissionNode.setTextContent(dateOfAdmission.getValue().toString());
         Node dateOfDischargeNode = doc.getElementsByTagName("dateOfDischarge").item(0);
@@ -245,11 +252,15 @@ public class Controller {
         Node emergencyNode = doc.getElementsByTagName("emergency").item(0);
         setImageOnSelected(emergencyNode, emergency);
         Node indicationNode = doc.getElementsByTagName("indication").item(0);
-        indicationNode.setTextContent(indication.getText());
+        if ("Other".equals(indication.getValue())) {
+            indicationNode.setTextContent(otherIndication.getText());
+        } else {
+            indicationNode.setTextContent((String) indication.getValue());
+        }
         Node spinalDrNode = doc.getElementsByTagName("spinalDr").item(0);
-        spinalDrNode.setTextContent(spinalDr.getText());
+        spinalDrNode.setTextContent("Dr. " + spinalDr.getText());
         Node surgeonNode = doc.getElementsByTagName("surgeon").item(0);
-        surgeonNode.setTextContent(surgeon.getText());
+        surgeonNode.setTextContent("Dr. " + surgeon.getText());
         Node assistantNode = doc.getElementsByTagName("assistant").item(0);
         assistantNode.setTextContent("Dr. " + assistant.getText());
 
@@ -257,14 +268,14 @@ public class Controller {
         setImageOnSelected(monocrylNode, monocryl);
         Node interruptedNylonNode = doc.getElementsByTagName("interruptedNylon").item(0);
         setImageOnSelected(interruptedNylonNode, interruptedNylon);
-        Node stepplersNode = doc.getElementsByTagName("stepplers").item(0);
+        Node stepplersNode = doc.getElementsByTagName("staples").item(0);
         setImageOnSelected(stepplersNode, stepplers);
         Node postOpInstructionsNode = doc.getElementsByTagName("postOpInstructions").item(0);
         postOpInstructionsNode.setTextContent(postOpInstructions.getText());
         Node dateOfBirthNode = doc.getElementsByTagName("dateOfBirth").item(0);
         dateOfBirthNode.setTextContent(dateOfBirth.getValue().toString());
         Node timeOfBirthNode = doc.getElementsByTagName("timeOfBirth").item(0);
-        timeOfBirthNode.setTextContent(timeOfBirthHours.getValue() +" : "+ timeOfBirthMinutes.getValue());
+        timeOfBirthNode.setTextContent(timeOfBirthHours.getValue() +"h : "+ timeOfBirthMinutes.getValue() + "m");
         Node genderNode = doc.getElementsByTagName("gender").item(0);
         genderNode.setTextContent((String) gender.getValue());
         Node birthWeightNode = doc.getElementsByTagName("birthWeight").item(0);
@@ -279,38 +290,50 @@ public class Controller {
         contraceptiveAdviceNode.setTextContent((String) contraceptiveAdvice.getValue());
         Node hoShoNode = doc.getElementsByTagName("hoSho").item(0);
         hoShoNode.setTextContent("Dr. " + hoSho.getText());
-//        Node dateNode = doc.getElementsByTagName("date").item(0);
-//        dateNode.setTextContent(date.getValue().toString());
-//        Node removalDateNode = doc.getElementsByTagName("removalDate").item(0);
-//        removalDateNode.setTextContent(removalToThisPatientOn.getValue().toString());
+
+        // Since values.xml will be changed next in code and read the changed values.xml to create xsl fo objects,
+        // changed XML file should be outside of the jar file. So in order to read the values.xml we need to get the
+        // absolute location of jar file or project source. So we can use below code for that.
+        String sourceLocation = getClass().getProtectionDomain().getCodeSource().getLocation().toExternalForm();
+        String srcLocWithoutLastSlash = sourceLocation.substring(0, sourceLocation.length() - 1);
+        String basePath = srcLocWithoutLastSlash.substring(0, srcLocWithoutLastSlash.lastIndexOf("/"));
+        StreamResult result = new StreamResult(basePath + "/resources/values.xml");
+
+        //base-path is the path of standalone jar file or source location. We need this because image also need to read
+        // from outside jar file. Otherwise FOP will not recognized the path. In order to read the image files from
+        // outside of jar file we need the location of standalone jar file.
+        String pathLocation = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        String pathLocWithoutLastSlash = pathLocation.substring(0, pathLocation.length() - 1);
+        String basePathWithoutScheme = pathLocWithoutLastSlash.substring(0, pathLocWithoutLastSlash.lastIndexOf("/"));
+
+        Node basePathNode = doc.getElementsByTagName("base-path").item(0);
+        basePathNode.setTextContent(basePathWithoutScheme);
 
         //write values to XML
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
-//        OutputStream outputStream = new ByteArrayOutputStream();
-//        IOUtils.copy(getClass().getProtectionDomain().getCodeSource().getLocation()"./resources/values.xml"), outputStream);
-        String sourceLocation = getClass().getProtectionDomain().getCodeSource().getLocation().toExternalForm();
-        String srcLocWithoutLastSlash = sourceLocation.substring(0, sourceLocation.length() - 1);
-        StreamResult result = new StreamResult(srcLocWithoutLastSlash.substring(0, srcLocWithoutLastSlash.lastIndexOf("/"))+"/resources/values.xml");
-       // StreamResult result = new StreamResult(getClass().getResource("/xml/values.xml").toString());
         transformer.transform(source, result);
     }
 
-
+    /**
+     * set the image path as selected on xml node if check box is selected or not if otherwise.
+     * @param node XML node in which should set the image path.
+     * @param checkBox check box on the javafx form.
+     */
     private void setImageOnSelected(Node node, CheckBox checkBox) {
         if(checkBox.isSelected()) {
-            node.setTextContent("selectedCheckbox.png");
+            node.setTextContent("/resources/images/selectedCheckBox.png");
         } else {
-            node.setTextContent("deselectedCheckbox.png");
+            node.setTextContent("/resources/images/deselectedCheckBox.png");
         }
     }
 
+    //reset the text fields of form
     private void resetForm() {
         patientName.setText("");
         age.setText("");
         bhtNo.setText("");
-        indication.setText("");
         surgeon.setText("");
         spinalDr.setText("");
         assistant.setText("");

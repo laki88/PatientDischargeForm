@@ -19,6 +19,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>xmlgraphics-commons</artifactId>
+      <version>2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>fop</artifactId>
       <version>2.2</version>
     </dependency>
@@ -58,7 +63,7 @@
       <resource>
         <filtering>false</filtering><!-- if it is neccessary -->
         <directory>${project.basedir}/src/main/resources/images</directory><!-- from -->
-        <targetPath>${project.build.directory}/classes/images</targetPath><!-- to -->
+        <targetPath>${project.build.directory}/resources/images</targetPath><!-- to -->
         <includes><!-- what -->
           <include>*.*</include>
         </includes>

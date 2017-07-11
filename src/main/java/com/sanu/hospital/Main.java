@@ -8,6 +8,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.time.LocalDate;
@@ -20,7 +22,6 @@ public class Main extends Application {
         loader.setLocation(getClass().getResource("/fxml/patientDischargeForm.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Patient Discharge Form");
-
         Controller controller = loader.getController();
         controller.setMain(this);
 
@@ -114,6 +115,10 @@ public class Main extends Application {
         gravidityBox.getSelectionModel().select(1);
         parityBox.getSelectionModel().select(0);
         childrenBox.getSelectionModel().select(0);
+
+
+        ComboBox<String> indicationsBox = (ComboBox<String>) scene.lookup("#indication");
+        indicationsBox.setItems(FXCollections.observableArrayList("Past Section", "Past Dates", "IUGR", "CPD", "Fetal Distress", "Malpresentation", "PIH/ Pre Eclampsia", "Other"));
 
     }
 

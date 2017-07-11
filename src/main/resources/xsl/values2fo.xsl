@@ -3,6 +3,7 @@
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:fo="http://www.w3.org/1999/XSL/Format">
     <xsl:output method="xml" indent="yes"/>
+    <xsl:variable name="base_path" select="/formData/base-path"/>
     <xsl:template match="/formData">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <fo:layout-master-set>
@@ -110,10 +111,10 @@
                                         <fo:block> Lower Segment Cesarean Section </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell padding="6pt" text-align="right">
-                                        <fo:block> <fo:external-graphic src="url('{/formData/elective}')" content-height="0.25cm"/> Elective </fo:block>
+                                        <fo:block> <fo:external-graphic src="url('{$base_path}{/formData/elective}')" content-height="0.25cm"/> Elective </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell padding="6pt" text-align="left">
-                                        <fo:block> <fo:external-graphic src="url('{/formData/emergency}')" content-height="0.25cm"/> Emergency </fo:block>
+                                        <fo:block> <fo:external-graphic src="url('{$base_path}{/formData/emergency}')" content-height="0.25cm"/> Emergency </fo:block>
                                     </fo:table-cell>
                                 </fo:table-row>
                                 <fo:table-row>
@@ -124,7 +125,7 @@
                                         <fo:block> <xsl:value-of select="indication"/> </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell padding="6pt" text-align="right">
-                                        <fo:block> Spinal Dr : </fo:block>
+                                        <fo:block> Spinal Anaesthesia : </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell padding="6pt" text-align="left">
                                         <fo:block> <xsl:value-of select="spinalDr"/> </fo:block>
@@ -151,7 +152,7 @@
                                     <fo:table-cell padding="6pt" text-align="left">
                                         <fo:block><![CDATA[Incision : pfannenstiel Uneventful entry into the peritoneal cavity Bladder deflected by blunt dissection Routine LSCS done. Live non asphyxiated baby deliver. Liquor clear. Uterus, Tubes & Overies normal. Placenta complete. Uterus closed in two layers. Routine closure no. 2 vycryl to Rectus.]]>
                                             Skin closure with sub cut,
-                                            <fo:external-graphic src="url('{/formData/monocryl}')" content-height="0.25cm"/>Monocryl <fo:external-graphic src="url('{/formData/interruptedNylon}')" content-height="0.25cm"/>Interrupted nylon <fo:external-graphic src="url('{/formData/stepplers}')" content-height="0.25cm"/>Stepplers
+                                            <fo:external-graphic src="url('{$base_path}{/formData/monocryl}')" content-height="0.25cm"/>Monocryl <fo:external-graphic src="url('{$base_path}{/formData/interruptedNylon}')" content-height="0.25cm"/>Interrupted nylon <fo:external-graphic src="url('{$base_path}{/formData/staples}')" content-height="0.25cm"/>Staples
                                         </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell padding="6pt" text-align="right">
